@@ -12,7 +12,8 @@ function App() {
 
   const handleMount = (editor)=> {
     editorRef.current=editor
-
+    const provider = new SocketIOProvider("http://localhost:3000", "monaco-demo", ydoc, {autoConnect: true}) // establishes connection btw user and server
+    const monacoBinding = new MonacoBinding(yText, editorRef.current.getModel(), new Set([editorRef.current]), provider.awareness)
   }
   return (
     <main className="h-screen w-full bg-gray-950 flex gap-4 p-4">
@@ -24,6 +25,7 @@ function App() {
         defaultLanguage="javascript"
         defaultValue="// some comment"
         theme="vs-dark"
+        onMount={handleMount}
       />
       </section>
     </main>
