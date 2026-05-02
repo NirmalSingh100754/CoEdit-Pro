@@ -37,16 +37,16 @@ function App() {
       provider.awareness.setLocalStateField("user", { username, })
 
       const states = Array.from(provider.awareness.getStates().values())
-      setUsers(states.filter(user => user && user.username).map(state => state.user))
+      setUsers(states.filter(state => state && state.user && state.user.username).map(state => state.user))
 
       provider.awareness.on("change", () => {
         const states = Array.from(provider.awareness.getStates().values())
-        setUsers(states.filter(user => user && user.username).map(state => state.user))
+        setUsers(states.filter(state => state && state.user && state.user.username).map(state => state.user))
       })
       function handleBeforeUnload() {
         provider.awareness.setLocalStateField("user", null) // Clear user state on disconnect
       }
-
+      window.addEventListener("beforeunload", handleBeforeUnload)
 
       return () => {
         provider.disconnect()
