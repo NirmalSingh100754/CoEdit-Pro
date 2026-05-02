@@ -7,6 +7,7 @@ A real-time collaborative code editor built with modern web technologies. CoEdit
 ## 🚀 Features
 
 - **Real-time Collaboration**: Multiple users can edit the same document simultaneously with live cursor presence
+- **Active User Presence**: Connected users are shown in the active users panel using Yjs awareness state
 - **Monaco Editor Integration**: Full-featured code editor (same as VS Code) with syntax highlighting
 - **CRDT-based Sync**: Powered by Yjs for conflict-free real-time synchronization
 - **WebSocket Communication**: Efficient bidirectional communication via Socket.io
@@ -142,14 +143,14 @@ The frontend connects to the WebSocket server at:
 http://localhost:3000
 ```
 
-With room name: `monaco-demo`
+With room name: `monaco-demo-room`
 
 ---
 
 ## 📱 Current UI Layout
 
 The application features a split-view layout:
-- **Left Sidebar** (25% width): Amber/light colored panel (reserved for future features like file explorer)
+- **Left Sidebar** (25% width): Amber/light colored panel showing active connected users
 - **Main Editor** (75% width): Monaco code editor with dark theme
 
 ---
@@ -158,8 +159,18 @@ The application features a split-view layout:
 
 1. **Client Connection**: When a user opens the app, it connects to the WebSocket server via `y-socket.io`
 2. **Document Sync**: A shared Yjs document (`monaco`) is created and synchronized across all connected clients
-3. **Real-time Editing**: Changes in the Monaco editor are captured by `y-monaco` binding and propagated to all clients
-4. **Conflict Resolution**: Yjs CRDT ensures eventual consistency without conflicts
+3. **Active Presence**: `y-socket.io` awareness state tracks connected users and updates the active users list in real time
+4. **Real-time Editing**: Changes in the Monaco editor are captured by `y-monaco` binding and propagated to all clients
+5. **Conflict Resolution**: Yjs CRDT ensures eventual consistency without conflicts
+
+---
+
+## 📝 Today’s Updates
+
+- Documented active user presence in the frontend using Yjs awareness.
+- Confirmed the WebSocket room name is `monaco-demo-room`.
+- Clarified the split-view UI layout with the active users sidebar.
+- Updated README to reflect the app’s collaboration flow and presence behavior.
 
 ---
 
