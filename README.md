@@ -163,65 +163,30 @@ The application features a split-view layout:
 4. **Real-time Editing**: Changes in the Monaco editor are captured by `y-monaco` binding and propagated to all clients
 5. **Conflict Resolution**: Yjs CRDT ensures eventual consistency without conflicts
 
-## 📝 Today's Updates (May 3, 2026)
+## 📝 Today's Updates (May 9, 2026)
 
-- **Fixed Import Error**: Corrected capitalization in `backend/server.js` - changed `"y-Socket.io"` to `"y-socket.io"` to match package.json
-- **Docker Containerization**: Created `Dockerfile` in root directory for backend containerization using Node.js 20 Alpine
-- **Frontend Build**: Successfully built frontend for production using `npm run build`
-- **Docker Testing**: Attempted running backend container with port mapping (`docker run -p3000:3000 backend`)
-- **Container Issues**: Resolved Docker container exit code 137 (SIGKILL) - likely due to missing EXPOSE directive and working directory setup
+- **Multistage Docker Build Added**: Updated root `Dockerfile` to build frontend first and then bundle `dist` output into backend `public`.
+- **Single Image Deployment Flow**: Standardized setup so one image serves both backend API and frontend static assets.
+- **Build Context Cleanup**: Added `.dockerignore` entries for `.env` and `node_modules` to reduce context size and avoid shipping local files.
 
 ---
 
 ## 🐳 Docker Setup
 
-### Build Backend Container
+The project uses a **single multistage Dockerfile** in the repository root:
+1. Build frontend (`frontend/dist`)
+2. Copy built frontend into backend static folder (`backend/public`)
+3. Run backend server, which serves API and frontend together
+
+### Build and Run Container
 
 ```bash
-# Build the backend image
-docker build -t coedit-backend .
-
-# Run the backend container
-docker run -p3000:3000 coedit-backend
+# Run this from project root (CoEdit-Pro)
+docker build -t coedit-pro .
+docker run -p3000:3000 coedit-pro
 ```
 
-### Build Frontend Container
-
-```bash
-# Build the frontend image
-docker build -t coedit-frontend ./frontend
-
-# Run the frontend container
-docker run -p80:80 coedit-frontend
-```
-
-### Using Docker Compose (Recommended)
-
-Create a `docker-compose.yml` file in the root directory:
-
-```yaml
-version: '3.8'
-services:
-  backend:
-    build: ./backend
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-```
-
-Then run:
-
-```bash
-docker-compose up --build
-```
+App will be available at `http://localhost:3000`.
 
 ---
 
