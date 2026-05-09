@@ -9,6 +9,7 @@ RUN npm run build
 FROM node:20-alpine as backend-builder
 COPY ./backend /app
 WORKDIR /app
+RUN apk add --no-cache python3 g++ openjdk17-jdk
 RUN npm install
 COPY --from=frontend-builder /app/dist  /app/public
 CMD ["node", "server.js"]
