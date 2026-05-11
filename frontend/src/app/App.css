@@ -1,1 +1,355 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(circle at top left, var(--bg-glow), transparent 30rem),
+    var(--app-bg);
+  color: var(--text);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.theme-dark {
+  --app-bg: #111113;
+  --bg-glow: rgba(245, 200, 75, 0.12);
+  --surface: #1b1b1f;
+  --surface-strong: #121214;
+  --surface-muted: #27272c;
+  --sidebar-bg: #19191d;
+  --border: #35353c;
+  --text: #f5f2ea;
+  --muted: #b8b2a4;
+  --input-bg: #24242a;
+  --accent: #f5c84b;
+  --accent-text: #1b1607;
+  --button-hover: #ffdb73;
+  --user-bg: #2a2a30;
+  --output-text: #9ef0b6;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  --toggle-track: #4b4b52;
+  --toggle-shift: 1rem;
+}
+
+.theme-light {
+  --app-bg: #f6f7fb;
+  --bg-glow: rgba(37, 99, 235, 0.1);
+  --surface: #ffffff;
+  --surface-strong: #eef2f7;
+  --surface-muted: #e4e9f2;
+  --sidebar-bg: #fff8e7;
+  --border: #d6dbe5;
+  --text: #1f232b;
+  --muted: #5f6673;
+  --input-bg: #ffffff;
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --button-hover: #1d4ed8;
+  --user-bg: #1f2937;
+  --output-text: #047857;
+  --shadow: 0 24px 70px rgba(45, 57, 82, 0.15);
+  --toggle-track: #c7d2fe;
+  --toggle-shift: 0;
+}
+
+.join-layout {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+}
+
+.theme-floating {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+}
+
+.join-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  width: min(100%, 22rem);
+}
+
+.join-input,
+.language-select {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.join-input {
+  padding: 0.75rem 0.85rem;
+}
+
+.join-input::placeholder {
+  color: var(--muted);
+}
+
+.join-input:focus,
+.language-select:focus,
+.theme-toggle:focus-visible,
+.join-button:focus-visible,
+.run-button:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent), transparent 72%);
+}
+
+.join-button,
+.run-button {
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--accent-text);
+  cursor: pointer;
+  font-weight: 700;
+  transition:
+    background-color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.join-button {
+  padding: 0.75rem 1rem;
+}
+
+.run-button {
+  min-height: 2.25rem;
+  padding: 0.4rem 1rem;
+}
+
+.join-button:hover,
+.run-button:hover {
+  background: var(--button-hover);
+}
+
+.run-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.workspace-layout {
+  display: flex;
+  gap: 1rem;
+  height: 100vh;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.users-panel,
+.editor-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.users-panel {
+  background: var(--sidebar-bg);
+  flex: 0 0 min(25%, 20rem);
+  height: 100%;
+}
+
+.users-title {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+  padding: 1rem;
+}
+
+.users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 1rem;
+}
+
+.user-pill {
+  background: var(--user-bg);
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.65rem 0.75rem;
+}
+
+.editor-panel {
+  background: var(--surface);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+}
+
+.editor-toolbar {
+  align-items: center;
+  background: var(--surface-strong);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+}
+
+.language-control,
+.toolbar-actions,
+.theme-toggle {
+  align-items: center;
+  display: flex;
+}
+
+.language-control {
+  gap: 0.75rem;
+}
+
+.toolbar-actions {
+  gap: 0.75rem;
+}
+
+.control-label,
+.theme-toggle__text,
+.output-title {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.control-label,
+.theme-toggle__text {
+  font-weight: 700;
+}
+
+.language-select {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.theme-toggle {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  cursor: pointer;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  padding: 0.3rem 0.65rem 0.3rem 0.35rem;
+}
+
+.theme-toggle__track {
+  background: var(--toggle-track);
+  border-radius: 999px;
+  flex: 0 0 auto;
+  height: 1.15rem;
+  position: relative;
+  width: 2.15rem;
+}
+
+.theme-toggle__knob {
+  background: var(--surface);
+  border-radius: 50%;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.28);
+  height: calc(1.15rem - 4px);
+  left: 2px;
+  position: absolute;
+  top: 2px;
+  transform: translateX(var(--toggle-shift));
+  transition:
+    background-color 180ms ease,
+    transform 180ms ease;
+  width: calc(1.15rem - 4px);
+}
+
+.theme-toggle__text {
+  color: var(--text);
+  min-width: 2.35rem;
+  text-align: left;
+}
+
+.editor-area {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.output-panel {
+  background: var(--surface-strong);
+  border-top: 1px solid var(--border);
+  flex: 0 0 30%;
+  min-height: 9rem;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.output-title {
+  margin: 0 0 0.5rem;
+}
+
+.output-result {
+  color: var(--output-text);
+  font-size: 0.875rem;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 780px) {
+  .workspace-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+  }
+
+  .users-panel {
+    flex: 0 0 auto;
+    height: auto;
+    max-height: 13rem;
+    width: 100%;
+  }
+
+  .editor-panel {
+    min-height: 42rem;
+    width: 100%;
+  }
+
+  .editor-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .language-control,
+  .toolbar-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+}

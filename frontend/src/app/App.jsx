@@ -8,6 +8,8 @@ import { io } from "socket.io-client"
 
 const socket = io("/")
 
+const THEME_STORAGE_KEY = "coedit-theme"
+
 const LANGUAGE_TEMPLATES = {
   java: `public class Main {
   public static void main(String[] args) {
@@ -24,6 +26,40 @@ int main() {
 }`,
 }
 
+function getInitialTheme() {
+  const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
+
+  if (savedTheme === "light" || savedTheme === "dark") {
+    return savedTheme
+  }
+
+  return window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "light"
+    : "dark"
+}
+
+function ThemeToggle({ theme, onToggle }) {
+  const nextTheme = theme === "dark" ? "light" : "dark"
+
+  return (
+    <button
+      type="button"
+      className="theme-toggle"
+      onClick={onToggle}
+      aria-label={`Switch to ${nextTheme} theme`}
+      aria-pressed={theme === "dark"}
+      title={`Switch to ${nextTheme} theme`}
+    >
+      <span className="theme-toggle__track" aria-hidden="true">
+        <span className="theme-toggle__knob" />
+      </span>
+      <span className="theme-toggle__text">
+        {theme === "dark" ? "Dark" : "Light"}
+      </span>
+    </button>
+  )
+}
+
 function App() {
   const editorRef = useRef(null)
 
@@ -36,9 +72,18 @@ function App() {
   const [language, setLanguage] = useState("java")
   const [isRunning, setIsRunning] = useState(false)
   const [runResult, setRunResult] = useState("Run output will appear here.")
+  const [theme, setTheme] = useState(getInitialTheme)
 
   const ydoc = useMemo(() => new Y.Doc(), [])
   const yText = useMemo(() => ydoc.getText("monaco"), [ydoc])
+  const appClassName = `app-shell theme-${theme}`
+  const editorTheme = theme === "dark" ? "vs-dark" : "vs"
+
+  const handleThemeToggle = () => {
+    setTheme((currentTheme) =>
+      currentTheme === "dark" ? "light" : "dark"
+    )
+  }
 
   const handleMount = (editor) => {
     editorRef.current = editor
@@ -121,6 +166,11 @@ function App() {
   }
 
   useEffect(() => {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme)
+    document.documentElement.dataset.theme = theme
+  }, [theme])
+
+  useEffect(() => {
 
     socket.on("language-change", (lang) => {
       setLanguage(lang)
@@ -199,25 +249,32 @@ function App() {
       }
     }
 
-  }, [username])
+  }, [username, ydoc])
 
   if (!username) {
 
     return (
-      <main className="h-screen w-full bg-gray-950 flex gap-4 p-4 items-center justify-center">
+      <main className={`${appClassName} join-layout`}>
+        <div className="theme-floating">
+          <ThemeToggle
+            theme={theme}
+            onToggle={handleThemeToggle}
+          />
+        </div>
+
         <form
-          className='flex flex-col gap-4'
+          className='join-form'
           onSubmit={handleJoin}
         >
 
           <input
             type="text"
             placeholder='Enter your username'
-            className='p-2 rounded-lg bg-gray-800 text-white'
+            className='join-input'
             name='username'
           />
 
-          <button className='bg-amber-50 p-2 rounded-lg text-gray-950 font-bold'>
+          <button className='join-button'>
             Join
           </button>
 
@@ -227,18 +284,18 @@ function App() {
   }
 
   return (
-    <main className="h-screen w-full bg-gray-950 flex gap-4 p-4">
+    <main className={`${appClassName} workspace-layout`}>
 
-      <aside className='h-full w-1/4 bg-amber-50 rounded-lg'>
-        <h2 className='text-gray-950 font-bold text-xl p-4 border-b'>
+      <aside className='users-panel'>
+        <h2 className='users-title'>
           Active Users
         </h2>
 
-        <ul className='p-4 flex flex-col gap-2'>
+        <ul className='users-list'>
           {users.map((user, index) => (
             <li
               key={index}
-              className='bg-gray-800 text-white p-2 rounded-lg'
+              className='user-pill'
             >
               {user.username}
             </li>
@@ -246,18 +303,18 @@ function App() {
         </ul>
       </aside>
 
-      <section className='w-3/4 bg-neutral-800 rounded-lg overflow-hidden flex flex-col'>
+      <section className='editor-panel'>
 
-        <div className='flex items-center justify-between gap-3 px-4 py-3 bg-neutral-900 border-b border-neutral-700'>
+        <div className='editor-toolbar'>
 
-          <div className='flex items-center gap-3'>
+          <div className='language-control'>
 
-            <label className='text-white text-sm'>
+            <label className='control-label'>
               Language
             </label>
 
             <select
-              className='bg-neutral-800 text-white rounded-md px-2 py-1 text-sm'
+              className='language-select'
               value={language}
               onChange={(e) =>
                 handleLanguageChange(e.target.value)
@@ -270,32 +327,41 @@ function App() {
 
           </div>
 
-          <button
-            className='bg-amber-50 text-gray-900 px-4 py-1.5 rounded-md font-semibold disabled:opacity-60'
-            onClick={handleRunCode}
-            disabled={isRunning}
-          >
-            {isRunning ? "Running..." : "Run"}
-          </button>
+          <div className="toolbar-actions">
+            <ThemeToggle
+              theme={theme}
+              onToggle={handleThemeToggle}
+            />
+
+            <button
+              className='run-button'
+              onClick={handleRunCode}
+              disabled={isRunning}
+            >
+              {isRunning ? "Running..." : "Run"}
+            </button>
+          </div>
 
         </div>
 
-        <Editor
-          height="70%"
-          defaultLanguage={language}
-          defaultValue={LANGUAGE_TEMPLATES[language]}
-          theme="vs-dark"
-          onMount={handleMount}
-          language={language}
-        />
+        <div className="editor-area">
+          <Editor
+            height="100%"
+            defaultLanguage={language}
+            defaultValue={LANGUAGE_TEMPLATES[language]}
+            theme={editorTheme}
+            onMount={handleMount}
+            language={language}
+          />
+        </div>
 
-        <div className='h-[30%] bg-neutral-900 border-t border-neutral-700 p-4 overflow-auto'>
+        <div className='output-panel'>
 
-          <h3 className='text-sm text-neutral-300 mb-2'>
+          <h3 className='output-title'>
             Output
           </h3>
 
-          <pre className='text-sm text-green-300 whitespace-pre-wrap'>
+          <pre className='output-result'>
             {runResult}
           </pre>
 
