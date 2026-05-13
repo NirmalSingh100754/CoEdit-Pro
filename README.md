@@ -111,6 +111,73 @@ docker run -p 3000:3000 coedit-pro
 
 Open `http://localhost:3000`.
 
+### Deploying the Docker Image on AWS
+
+A common production path is to build the Docker image locally or in CI, push it to Amazon Elastic Container Registry (ECR), and run it with Amazon Elastic Container Service (ECS) on AWS Fargate.
+
+1. **Build the Docker image**
+
+   ```bash
+   docker build -t coedit-pro .
+   ```
+
+2. **Create an ECR repository**
+
+   Create a private ECR repository named `coedit-pro` from the AWS Console or with the AWS CLI:
+
+   ```bash
+   aws ecr create-repository --repository-name coedit-pro
+   ```
+
+3. **Authenticate Docker with ECR**
+
+   Replace `<aws-account-id>` and `<region>` with your AWS account ID and region, for example `us-east-1`.
+
+   ```bash
+   aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws-account-id>.dkr.ecr.<region>.amazonaws.com
+   ```
+
+4. **Tag and push the image**
+
+   ```bash
+   docker tag coedit-pro:latest <aws-account-id>.dkr.ecr.<region>.amazonaws.com/coedit-pro:latest
+   docker push <aws-account-id>.dkr.ecr.<region>.amazonaws.com/coedit-pro:latest
+   ```
+
+5. **Create an ECS cluster**
+
+   In Amazon ECS, create a cluster. For the simplest setup, choose AWS Fargate so AWS manages the servers.
+
+6. **Create an ECS task definition**
+
+   Add a container that uses the ECR image URI:
+
+   ```text
+   <aws-account-id>.dkr.ecr.<region>.amazonaws.com/coedit-pro:latest
+   ```
+
+   Set the container port to `3000`, because the Express backend serves the app on port `3000`.
+
+7. **Run the task as an ECS service**
+
+   Create an ECS service from the task definition. Choose the desired number of running tasks, usually `1` for a small first deployment.
+
+8. **Expose the app**
+
+   Attach an Application Load Balancer or assign a public IP to the Fargate service. The load balancer should forward HTTP traffic to container port `3000`.
+
+9. **Verify the deployment**
+
+   Open the public load balancer URL or public task IP in the browser. You can also check:
+
+   ```text
+   http://<public-url>/health
+   ```
+
+10. **Update future versions**
+
+    Rebuild the image, tag it with a new version such as `v2`, push it to ECR, update the ECS task definition image tag, and redeploy the ECS service.
+
 ### Local Backend
 
 ```bash
